@@ -1,0 +1,9 @@
+[Gedit Plugin]
+Loader=python
+Module=pythoncodecompletion
+IAge=2
+Name=Python Code Completion
+Description=Complete python code with Ctrl+Alt+Space key combination
+Authors=Rodrigo Pinheiro Marques de Araujo (Fenrrir) <fenrrir@gmail.com>
+Copyright=Copyright (C) 2006-2007 Osmo Salomaa / 2008 Rodrigo Pinheiro Marques de Araujo
+
