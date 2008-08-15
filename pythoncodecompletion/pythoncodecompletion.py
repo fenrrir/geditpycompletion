@@ -1,5 +1,6 @@
 # Copyright (C) 2006-2007 Osmo Salomaa
 # Copyright (C) 2008 Rodrigo Pinheiro Marques de Araujo
+# Copyright (C) 2008 Michael Mc Donnell                      
 #
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -24,7 +25,8 @@ import gobject
 import gtk
 import re
 from complete import complete
-
+import configuredialog
+import configuration
 
 class CompletionWindow(gtk.Window):
 
@@ -64,7 +66,6 @@ class CompletionWindow(gtk.Window):
         elif event.keyval == gtk.keysyms.Down:
             self.select_next()
 
-
     def complete(self):
         self.complete_callback(self.completions[self.get_selected()]['completion'])
 
@@ -95,7 +96,6 @@ class CompletionWindow(gtk.Window):
         frame.add(hbox)
         self.add(frame)
 
-
     def init_tree_view(self):
         """Initialize the tree view listing the completions."""
 
@@ -112,10 +112,8 @@ class CompletionWindow(gtk.Window):
         self.view.set_size_request(200, 200)
         self.view.connect('row-activated', self.row_activated)
 
-
     def row_activated(self, tree, path, view_column, data = None):
         self.complete()
-
 
     def select_next(self):
         """Select the next completion."""
@@ -198,9 +196,7 @@ class CompletionPlugin(gedit.Plugin):
         index = self.popup.get_selected()
         doc.insert_at_cursor(completion)
         self.hide_popup()
-
-
-
+        
     def connect_view(self, view):
         """Connect to view's signals."""
 
@@ -209,6 +205,11 @@ class CompletionPlugin(gedit.Plugin):
         handler_id = view.connect("key-press-event", callback)
         handler_ids.append(handler_id)
         view.set_data(self.name, handler_ids)
+
+    def create_configure_dialog(self):
+        """Creates and shows a configuration dialog."""
+        configure_dialog = configuredialog.create_configure_dialog()
+        return configure_dialog
 
     def deactivate(self, window):
         """Deactivate plugin."""
@@ -268,18 +269,34 @@ class CompletionPlugin(gedit.Plugin):
         self.completes = None
         self.completions = None
 
+    def is_configurable(self):
+        """Show the plugin as configurable in gedits plugin list."""
+        return True
+
     def on_view_key_press_event(self, view, event):
         """Display the completion window or complete the current word."""
-
+        
         if self.window.get_active_document().get_mime_type() != 'text/x-python':
             return self.cancel()
 
-        if event.state & gtk.gdk.CONTROL_MASK and event.state & gtk.gdk.MOD1_MASK and event.keyval == gtk.keysyms.space:
+        # FIXME This might result in a clash with other plugins eg. snippets
+        # FIXME This code is not portable! 
+        #  The "Alt"-key might be mapped to something else
+        # TODO Find out which keybinding are already in use.
+        keybinding = configuration.get_keybinding_complete()
+        ctrl_pressed = (event.state & gtk.gdk.CONTROL_MASK) == gtk.gdk.CONTROL_MASK
+        alt_pressed = (event.state & gtk.gdk.MOD1_MASK) == gtk.gdk.MOD1_MASK
+        keyval = gtk.gdk.keyval_from_name(keybinding[configuration.KEY])
+        key_pressed = (event.keyval == keyval)
+
+        # It's ok if a key is pressed and it's needed or
+        # if a key is not pressed if it isn't needed.
+        ctrl_ok = not (keybinding[configuration.MODIFIER_CTRL] ^ ctrl_pressed )
+        alt_ok =  not (keybinding[configuration.MODIFIER_ALT] ^ alt_pressed )
+
+        if ctrl_ok and alt_ok and key_pressed:
             return self.display_completions(view, event)
-        if event.state & gtk.gdk.CONTROL_MASK:
-            return self.cancel()
-        if event.state & gtk.gdk.MOD1_MASK:
-            return self.cancel()
+        
         return self.cancel()
 
     def on_window_tab_added(self, window, tab):
@@ -298,3 +315,4 @@ class CompletionPlugin(gedit.Plugin):
         self.popup.move(root_x + x + 24, root_y + y + 44)
         self.popup.set_completions(completions)
         self.popup.show_all()
+        
