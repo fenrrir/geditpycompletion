@@ -25,8 +25,8 @@ import gobject
 import gtk
 import re
 from complete import complete
-import configuredialog
-import configuration
+import ConfigurationDialog
+import Configuration
 
 class CompletionWindow(gtk.Window):
 
@@ -207,9 +207,9 @@ class CompletionPlugin(gedit.Plugin):
         view.set_data(self.name, handler_ids)
 
     def create_configure_dialog(self):
-        """Creates and shows a configuration dialog."""
-        configure_dialog = configuredialog.create_configure_dialog()
-        return configure_dialog
+        """Creates and displays a ConfigurationDialog."""
+        dlg = ConfigurationDialog.ConfigurationDialog()
+        return dlg
 
     def deactivate(self, window):
         """Deactivate plugin."""
@@ -283,18 +283,20 @@ class CompletionPlugin(gedit.Plugin):
         # FIXME This code is not portable! 
         #  The "Alt"-key might be mapped to something else
         # TODO Find out which keybinding are already in use.
-        keybinding = configuration.get_keybinding_complete()
+        keybinding = Configuration.getKeybindingCompleteTuple()
         ctrl_pressed = (event.state & gtk.gdk.CONTROL_MASK) == gtk.gdk.CONTROL_MASK
         alt_pressed = (event.state & gtk.gdk.MOD1_MASK) == gtk.gdk.MOD1_MASK
-        keyval = gtk.gdk.keyval_from_name(keybinding[configuration.KEY])
+        shift_pressed = (event.state & gtk.gdk.SHIFT_MASK) == gtk.gdk.SHIFT_MASK
+        keyval = gtk.gdk.keyval_from_name(keybinding[Configuration.KEY])
         key_pressed = (event.keyval == keyval)
 
         # It's ok if a key is pressed and it's needed or
         # if a key is not pressed if it isn't needed.
-        ctrl_ok = not (keybinding[configuration.MODIFIER_CTRL] ^ ctrl_pressed )
-        alt_ok =  not (keybinding[configuration.MODIFIER_ALT] ^ alt_pressed )
+        ctrl_ok = not (keybinding[Configuration.MODIFIER_CTRL] ^ ctrl_pressed )
+        alt_ok =  not (keybinding[Configuration.MODIFIER_ALT] ^ alt_pressed )
+        shift_ok = not (keybinding[Configuration.MODIFIER_SHIFT] ^ shift_pressed )
 
-        if ctrl_ok and alt_ok and key_pressed:
+        if ctrl_ok and alt_ok and shift_ok and key_pressed:
             return self.display_completions(view, event)
         
         return self.cancel()
