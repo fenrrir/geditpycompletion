@@ -296,7 +296,7 @@ class CompletionPlugin(gedit.Plugin):
         alt_ok =  not (keybinding[Configuration.MODIFIER_ALT] ^ alt_pressed )
         shift_ok = not (keybinding[Configuration.MODIFIER_SHIFT] ^ shift_pressed )
 
-        if ctrl_ok and alt_ok and shift_ok and key_pressed:
+        if ctrl_ok and alt_ok and shift_ok and key_pressed or event.keyval == gtk.keysyms.period:
             return self.display_completions(view, event)
         
         return self.cancel()
