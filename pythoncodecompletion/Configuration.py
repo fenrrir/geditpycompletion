@@ -48,7 +48,7 @@ def getKeybindingComplete():
     if len(__keybindingComplete) == 0:
         keybinding = __client.get_string(GCONF_KEYBINDING_COMPLETE)
         __keybindingCompleteTuple = {} # Invalidate cache
-        if len(keybinding) == 0:
+        if not keybinding:
             __keybindingComplete = DEFAULT_KEYBINDING_COMPLETE
         else:
             __keybindingComplete = keybinding
