@@ -21,10 +21,9 @@ This code is alpha, it doesn't do very much input validation!
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 import gconf
-import os
 
 GCONF_PLUGIN_PATH = "/apps/gedit-2/plugins/pythoncodecompletion/"
-GCONF_KEYBINDING_COMPLETE = os.path.join(GCONF_PLUGIN_PATH, "keybindings/complete")
+GCONF_KEYBINDING_COMPLETE = GCONF_PLUGIN_PATH + "keybindings/complete"
 DEFAULT_KEYBINDING_COMPLETE = "ctrl+alt+space"
 MODIFIER_CTRL = "ctrl"
 MODIFIER_ALT = "alt"
@@ -32,8 +31,8 @@ MODIFIER_SHIFT = "shift"
 KEY = "key"
 
 __client = gconf.client_get_default ();
-__client.add_dir(GCONF_PLUGIN_PATH, gconf.CLIENT_PRELOAD_NONE)
-#__client.add_dir("/apps/gedit-2", gconf.CLIENT_PRELOAD_NONE)
+#_client.add_dir(GCONF_PLUGIN_PATH, gconf.CLIENT_PRELOAD_NONE)
+__client.add_dir("/apps/gedit-2", gconf.CLIENT_PRELOAD_NONE)
 
 # Cached keybinding
 __keybindingComplete = ""
