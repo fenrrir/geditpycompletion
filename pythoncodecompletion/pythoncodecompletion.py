@@ -275,8 +275,8 @@ class CompletionPlugin(gedit.Plugin):
 
     def on_view_key_press_event(self, view, event):
         """Display the completion window or complete the current word."""
-        
-        if self.window.get_active_document().get_mime_type() != 'text/x-python':
+        active_doc = self.window.get_active_document()
+        if active_doc is None or active_doc.get_mime_type() != 'text/x-python':
             return self.cancel()
 
         # FIXME This might result in a clash with other plugins eg. snippets
