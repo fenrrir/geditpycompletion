@@ -16,8 +16,8 @@
 import gtk
 import gtk.gdk
 import logging
-import KeybindingWidget
-import Configuration
+import keybindingwidget
+import configuration
 
 TEXT_KEYBINDING = "Keybinding:"
 TEXT_TITLE = "Configure python code completion"
@@ -34,7 +34,7 @@ class ConfigurationDialog(gtk.Dialog):
         self.set_title(TEXT_TITLE)
         self.set_default_size(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)
         self.changes = []
-        keybinding = Configuration.getKeybindingComplete()
+        keybinding = configuration.getKeybindingComplete()
         log.info("Got keybinding from gconf %s" % str(keybinding))
         self.__setKeybinding(keybinding)
         
@@ -47,7 +47,7 @@ class ConfigurationDialog(gtk.Dialog):
         lblKeybinding.set_text(TEXT_KEYBINDING)
         self.table.attach(lblKeybinding, 0, 1, 0, 1, xoptions=False, yoptions=False)        
         
-        self.__kbWidget = KeybindingWidget.KeybindingWidget()
+        self.__kbWidget = keybindingwidget.KeybindingWidget()
         self.__kbWidget.setKeybinding(keybinding)
         self.table.attach(self.__kbWidget, 1, 2, 0, 1, xoptions=False, yoptions=False)
         
@@ -78,7 +78,7 @@ class ConfigurationDialog(gtk.Dialog):
     def on_keybinding_changed(self, widget, keybinding):
         log.info("on_keybinding_changed")
         log.info("New keybinding is %s" % str(keybinding))
-        change1 = (Configuration.setKeybindingComplete, keybinding)
+        change1 = (configuration.setKeybindingComplete, keybinding)
         change2 = (self.__setKeybinding, keybinding)
         self.changes.append(change1)
         self.changes.append(change2)
